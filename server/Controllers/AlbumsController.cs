@@ -8,12 +8,14 @@ namespace postItSharp.Controllers;
 public class AlbumsController : ControllerBase{
 
   private readonly AlbumsService albumsService;
+  private readonly PicturesService picturesService;
   private readonly Auth0Provider auth;
 
-    public AlbumsController(Auth0Provider auth, AlbumsService albumsService)
+    public AlbumsController(Auth0Provider auth, AlbumsService albumsService, PicturesService picturesService)
     {
         this.auth = auth;
         this.albumsService = albumsService;
+        this.picturesService = picturesService;
     }
 
 
@@ -71,6 +73,20 @@ public class AlbumsController : ControllerBase{
         Account userInfo = await auth.GetUserInfoAsync<Account>(HttpContext);
         string message = albumsService.ArchiveAlbum(albumId, userInfo.Id);
         return Ok(message);
+      }
+    catch (Exception error)
+      {
+        return BadRequest(error.Message);
+      }
+    }
+
+    [HttpGet("{albumId}/pictures")]
+    public ActionResult<List<Picture>> GetAlbumPictures(int albumId)
+    {
+      try
+      {
+        List<Picture> pictures = picturesService.GetAlbumPictures(albumId);
+        return Ok(pictures);
       }
     catch (Exception error)
       {

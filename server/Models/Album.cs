@@ -1,8 +1,7 @@
 namespace postItSharp.Models;
 
-public class Album{
+public class Album : RepoItem<int>{
 
-  public int Id { get; set; }
   public string Title { get; set; } 
   public string CoverImg { get; set; }
   public string Category { get; set; }
@@ -11,4 +10,9 @@ public class Album{
 
   public Account Creator { get; set; }
 
+}
+
+// NOTE this is the VIEW MODEL, how we want to VIEW the many to many
+public class CollaboratorAlbum : Album{
+  public int CollaboratorId { get; set; }
 }
