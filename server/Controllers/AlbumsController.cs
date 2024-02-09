@@ -9,13 +9,15 @@ public class AlbumsController : ControllerBase{
 
   private readonly AlbumsService albumsService;
   private readonly PicturesService picturesService;
+  private readonly CollaboratorsService collaboratorsService;
   private readonly Auth0Provider auth;
 
-    public AlbumsController(Auth0Provider auth, AlbumsService albumsService, PicturesService picturesService)
+    public AlbumsController(Auth0Provider auth, AlbumsService albumsService, PicturesService picturesService, CollaboratorsService collaboratorsService)
     {
         this.auth = auth;
         this.albumsService = albumsService;
         this.picturesService = picturesService;
+        this.collaboratorsService = collaboratorsService;
     }
 
 
@@ -89,6 +91,20 @@ public class AlbumsController : ControllerBase{
         return Ok(pictures);
       }
     catch (Exception error)
+      {
+        return BadRequest(error.Message);
+      }
+    }
+
+    [HttpGet("{albumId}/collaborators")]
+    public ActionResult<List<CollaboratorAccount>> GetAlbumCollaborators(int albumId)
+    {
+      try
+      {
+        List<CollaboratorAccount> collaboratingPeople = collaboratorsService.GetAlbumCollaborators(albumId);
+        return Ok(collaboratingPeople);
+      }
+     catch (Exception error)
       {
         return BadRequest(error.Message);
       }

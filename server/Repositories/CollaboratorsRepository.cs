@@ -31,15 +31,58 @@ public class CollaboratorsRepository(IDbConnection db)
       return collaboratorAccount;
     }
 
-    public void Delete(int id)
+    public void Delete(int collaboratorId)
     {
-        throw new NotImplementedException();
+      string sql = @"
+      DELETE FROM collaborators WHERE id = @collaboratorId
+      ";
+      db.Execute(sql, new{collaboratorId});
     }
 
 
-    public Collaborator GetById(int id)
+    public Collaborator GetById(int collaboratorId)
     {
-        throw new NotImplementedException();
+      string sql = @"
+      SELECT
+        *
+      FROM collaborators 
+      WHERE id = @collaboratorId;
+      ";
+      Collaborator collaborator = db.Query<Collaborator>(sql, new{collaboratorId}).FirstOrDefault();
+      return collaborator;
     }
 
+    internal List<CollaboratorAlbum> GetAccountCollaborators(string userId)
+    {
+      string sql = @"
+      SELECT
+        collaborators.*,
+        albums.*
+      FROM collaborators
+      JOIN albums ON collaborators.albumId = albums.id
+      WHERE collaborators.accountId = @userId;
+      ";
+      List<CollaboratorAlbum> collabAlbums = db.Query<Collaborator, CollaboratorAlbum, CollaboratorAlbum>(sql, (collaborator, collabAlbum) => {
+        collabAlbum.CollaboratorId = collaborator.Id;
+        return collabAlbum;
+      }, new{userId}).ToList();
+      return collabAlbums;
+    }
+
+    internal List<CollaboratorAccount> GetAlbumCollaborators(int albumId)
+    {
+      string sql = @"
+      SELECT
+        collaborators.*,
+        accounts.*
+      FROM collaborators 
+      JOIN accounts ON collaborators.accountId = accounts.id
+      WHERE collaborators.albumId = @albumId;
+      "; 
+      List<CollaboratorAccount> collaboratingPeople = db.Query<Collaborator, CollaboratorAccount, CollaboratorAccount>(sql, (collaborator, collabAccount)=> {
+        collabAccount.CollaboratorId = collaborator.Id;
+        return collabAccount;
+      }, new{albumId}).ToList();
+      return collaboratingPeople;
+    }
 }

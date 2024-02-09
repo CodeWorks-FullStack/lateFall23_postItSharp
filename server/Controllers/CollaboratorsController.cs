@@ -34,4 +34,20 @@ public class CollaboratorsController : ControllerBase
         return BadRequest(error.Message);
       }
   }
+
+  [HttpDelete("{collaboratorId}")]
+  [Authorize]
+  public async Task<ActionResult<string>> DeleteCollaborator(int collaboratorId)
+  {
+    try
+    {
+      Account userInfo = await auth.GetUserInfoAsync<Account>(HttpContext);
+      string message = collaboratorsService.DeleteCollaborator(collaboratorId, userInfo.Id);
+      return Ok(message);
+    }
+  catch (Exception e)
+    {
+      return BadRequest(e.Message);
+    }
+  }
 }
